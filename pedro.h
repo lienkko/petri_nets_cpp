@@ -1,3 +1,6 @@
+#ifndef PEDRO_H
+#define PEDRO_H
+
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -5,9 +8,15 @@
 #include <string>
 #include <algorithm>
 
+
 class Pedro
 {
 private:
+    const std::string print_r_arrow = "-->";
+    const std::string print_line = "--";
+    const std::string print_corner = "+"; 
+    const std::string print_border = "|";
+
     using index = size_t;
     using way = std::pair<size_t, int>; // index of vertex, points to go
 
@@ -22,15 +31,18 @@ private:
 
     void DoTransition(Transition &transition, index index_of_transition)
     {
-        // Take points from Incoming Vertexes
+        // Validation Test
         for (way &w : transition.IncomingWays)
         {
             if (all_vertexes[w.first] - w.second < 0)
                 throw std::invalid_argument("Not enough points for this transition");
-            else
-                all_vertexes[w.first] -= w.second;
         }
 
+        // Take points from Incoming Vertexes
+        for (way &w : transition.IncomingWays)
+        {
+            all_vertexes[w.first] -= w.second;
+        }
         // Give points to Outcoming Vertexes
         for (way &w : transition.OutcomingWays)
         {
@@ -47,7 +59,8 @@ public:
         DoTransition(all_transitions[index_of_transition], index_of_transition);
     }
 
-    void AddVertex(int start_points, index vertex_index)
+    // Add elements
+    void AddVertex(index vertex_index, int start_points)
     {
         if (start_points < 0)
             throw std::invalid_argument("Start_points can't be negative");
@@ -83,12 +96,20 @@ public:
     //     AddTransition({incoming_way}, {outcoming_way}, transition_index);
     // }
 
+
+
+    // Remove Elements
     void RemoveVertex(index vertex_index)
     {
         if (all_vertexes.find(vertex_index) == all_vertexes.end())
             throw std::invalid_argument("Vertex v" + std::to_string(vertex_index) + " doesn't exist");
+
+        // Removing vertex
         all_vertexes.erase(vertex_index);
         std::cout << "Vertex v" << vertex_index << " was removed" << std::endl;
+
+        // Removing transitions that contain removed vertex
+        // This is implemented to avoid transitions errors after the deletion of vertices 
         for (const std::pair<index, Transition> &w : all_transitions)
         {
             auto it = std::find_if(w.second.IncomingWays.begin(), w.second.IncomingWays.end(), [vertex_index](const auto &item)
@@ -104,12 +125,40 @@ public:
 
     void RemoveTransition(index transition_index)
     {
+        if (all_transitions.find(transition_index) == all_transitions.end())
+            throw std::invalid_argument("Transition t" + std::to_string(transition_index) + " doesn't exist");
         all_transitions.erase(transition_index);
     }
 
+
+
+    // Print Info About Net
     void PrintVertexesInfo() const noexcept
     {
         for (const std::pair<index, int> &vertex_pair : all_vertexes)
-            std::cout << "V" << vertex_pair.first << ": " << vertex_pair.second << " points" << std::endl;
+            std::cout << "v" << vertex_pair.first << ": " << vertex_pair.second << " points" << std::endl;
+    }
+    
+    void PrintTransitions() const noexcept
+    {
+        std::cout << "Transitions info:" << std::endl;
+        for (const std::pair<index,Transition>& trans: all_transitions) {
+            std::cout << "Transition t" << trans.first << ":" << std::endl;
+            for (int i = 0; i<trans.second.IncomingWays.size(); i++)
+            {
+                std::string way_string = "v" + std::to_string(trans.second.IncomingWays[i].first) + print_line + std::to_string(trans.second.IncomingWays[i].second) + print_line + print_corner;
+                std::cout << way_string;
+                if (i == trans.second.IncomingWays.size()/2)
+                    std::cout << print_r_arrow;
+                std::cout << std::endl;
+                if (i != trans.second.IncomingWays.size()-1){
+                    std::cout<< std::string(way_string.length()-1, ' ') << print_border << std::endl;
+                }
+            }
+            
+        }
     }
 };
+
+
+#endif  /* PEDRO_H*/
