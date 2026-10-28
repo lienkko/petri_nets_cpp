@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <math.h>
 
 
 class Pedro
@@ -83,20 +84,6 @@ public:
         AddTransition(std::move(std::vector<way>(incoming_ways)), std::move(std::vector<way>(incoming_ways)), transition_index);
     }
 
-    // void AddTransition(way &incoming_way, std::vector<way> &outcoming_ways, index transition_index)
-    // {
-    //     AddTransition({incoming_way}, outcoming_ways, transition_index);
-    // }
-    // void AddTransition(std::vector<way> &incoming_ways, way &outcoming_way, index transition_index)
-    // {
-    //     AddTransition(incoming_ways, {outcoming_way}, transition_index);
-    // }
-    // void AddTransition(way &incoming_way, way &outcoming_way, index transition_index)
-    // {
-    //     AddTransition({incoming_way}, {outcoming_way}, transition_index);
-    // }
-
-
 
     // Remove Elements
     void RemoveVertex(index vertex_index)
@@ -144,20 +131,29 @@ public:
         std::cout << "Transitions info:" << std::endl;
         for (const std::pair<index,Transition>& trans: all_transitions) {
             std::cout << "Transition t" << trans.first << ":" << std::endl;
-            for (int i = 0; i<trans.second.IncomingWays.size(); i++)
+            const std::vector<way>& inc_ways = trans.second.IncomingWays;
+            const std::vector<way>& outc_ways = trans.second.OutcomingWays;
+            std::string ways_strings[inc_ways.size()+ outc_ways.size()];
+            for (int i = 0; i<inc_ways.size(); i++)
             {
-                std::string way_string = "v" + std::to_string(trans.second.IncomingWays[i].first) + print_line + std::to_string(trans.second.IncomingWays[i].second) + print_line + print_corner;
-                std::cout << way_string;
-                if (i == trans.second.IncomingWays.size()/2)
-                    std::cout << print_r_arrow;
-                std::cout << std::endl;
-                if (i != trans.second.IncomingWays.size()-1){
-                    std::cout<< std::string(way_string.length()-1, ' ') << print_border << std::endl;
-                }
+                std::string way_string = "v" + std::to_string(inc_ways[i].first) + print_line + std::to_string(inc_ways[i].second) + print_line + print_corner;
+                ways_strings[i] = way_string;
             }
-            
+            for (int i = 0; i<outc_ways.size(); i++)
+            {
+                std::string way_string = print_corner + print_line + std::to_string(inc_ways[i].second) + print_line +  "v" + std::to_string(inc_ways[i].first) ;
+                ways_strings[inc_ways.size()+i] = way_string;
+            }
+            int count_of_strokes = std::max(inc_ways.size(), outc_ways.size());
+            bool is_inc_ways_bigger = inc_ways.size() > outc_ways.size();
+            size_t top_blanks = std::abs(inc_ways.size() - outc_ways.size());
+            for (int i = 0; i < count_of_strokes; i++) {
+
+            }
         }
+
     }
+    
 };
 
 
